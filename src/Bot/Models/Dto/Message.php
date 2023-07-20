@@ -6,10 +6,10 @@ namespace Bot\Models\Dto;
 
 final readonly class Message
 {
-    public function __construct(public int    $message_id,
-                                public string $first_name,
+    public function __construct(public int    $messageID,
+                                public string $firstname,
                                 public string $username,
-                                public string $language_code,
+                                public string $languageCode,
                                 public string $text,
-                                public int    $chat_id) {}
+                                public int    $chatID) {}
 }

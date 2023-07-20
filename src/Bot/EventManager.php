@@ -19,7 +19,7 @@ final readonly class EventManager
             $payload = new Payload(...$data);
             match ($payload->message->text) {
                 Command::START => $this->cmd->start($payload, $this->client),
-                Command::HELP => $this->cmd->help(),
+                Command::HELP => $this->cmd->help($payload, $this->client),
                 default => $this->cmd->undefined()
             };
             // todo log request
