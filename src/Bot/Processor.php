@@ -25,12 +25,13 @@ final class Processor
         }
     }
 
-    public function runWorkers(int $num): void
+    public function runWorkers(): void
     {
-        //todo check and log
-        for ($i = 1; $i <= $num; $i++) {
-            $process = new Process(['php', 'bot.php', 'bot/watch'], timeout: null);
-            $process->start();
+        //todo make concurrency
+        $process = new Process(['php', 'bot.php', 'bot/watch'], timeout: null);
+        $process->start();
+        while (!$process->isRunning()) {
+            //todo log stopped process
         }
     }
 
@@ -45,13 +46,12 @@ final class Processor
         }
     }
 
-    public function run(string $cmd, EventManager $manager, array $args = []): never
+    public function run(string $cmd, EventManager $manager, array $args = []): void
     {
         match ($cmd) {
-            'bot/run' => $this->runWorkers((int)$args[0]),
+            'bot/run' => $this->runWorkers(),
             'bot/watch' => $this->watch($manager),
-            default => exit(1)
+            default => '' // todo log this
         };
-        exit(0);
     }
 }

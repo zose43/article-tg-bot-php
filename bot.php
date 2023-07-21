@@ -25,3 +25,5 @@ $eventManager = new EventManager(
     new Command(),
     new Client(getenv('TG_TOKEN'), getenv('TG_API')));
 $processor->run($cmd[0], $eventManager, $args);
+
+exit(0);
