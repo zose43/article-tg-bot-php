@@ -14,7 +14,7 @@ use GuzzleHttp\Client as GuzzleClient;
 use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\Exception\BadResponseException;
 
-final class Client implements HTTPClient
+class Client implements HTTPClient
 {
     public const SEND_MESSAGE = 'sendMessage';
 
