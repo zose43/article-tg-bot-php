@@ -4,24 +4,20 @@ declare(strict_types = 1);
 
 namespace Bot;
 
-use Throwable;
-use Bot\Components\Redis;
 use Bot\Components\Queue;
+use Bot\Components\Logger;
 use Symfony\Component\Process\Process;
 
 final class Processor
 {
     public function handleRequest(): void
     {
-        $redis = Redis::getInstance();
-        try {
-            $body = file_get_contents('php://input');
-            if (!empty($body)) {
-                $redis->rPush(Queue::PAYLOAD, $body);
-            }
-        } catch (Throwable $e) {
-            //todo handle err
-            file_put_contents('xxx/webhook/' . uniqid('tg_bot', true), 'error');
+        $body = file_get_contents('php://input');
+        if (!empty($body)) {
+            Queue::push($body);
+        } else {
+            // todo throw custom exception
+            Logger::getLogger(Logger::PRODUCER, Logger::PRODUCER)->critical('tg-webhook send empty response');
         }
     }
 
@@ -30,9 +26,9 @@ final class Processor
         //todo make concurrency
         $process = new Process(['php', 'bot.php', 'bot/watch'], timeout: null);
         $process->start();
-        while (!$process->isRunning()) {
-            //todo log stopped process
-        }
+        Logger::getLogger()->info('watch php process started');
+        $process->wait();
+        Logger::getLogger()->info('watch php process stopped');
     }
 
     private function watch(EventManager $manager): void
@@ -40,7 +36,10 @@ final class Processor
         while (true) {
             [$queue, $msg] = Queue::pop();
             if (!$queue) {
-                //todo handle err
+                Logger::getLogger(Logger::CONSUMER, Logger::CONSUMER)->error("can't handle payload from queue, msg is invalid", [
+                    'queue' => $queue,
+                    'msg' => $msg,
+                ]);
             }
             $manager->handleEvent((string)$msg);
         }
@@ -51,7 +50,10 @@ final class Processor
         match ($cmd) {
             'bot/run' => $this->runWorkers(),
             'bot/watch' => $this->watch($manager),
-            default => '' // todo log this
+            default => Logger::getLogger()->warning("can't recognize command", [
+                'cmd' => $cmd,
+                'args' => $args,
+            ])
         };
     }
 }

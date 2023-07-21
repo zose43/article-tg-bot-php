@@ -15,7 +15,10 @@ final class Queue
         try {
             self::getRedis()->rPush(self::PAYLOAD, $payload);
         } catch (RedisException $e) {
-            //todo handle err
+            Logger::getLogger(Logger::PRODUCER, Logger::PRODUCER)->error($e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
         }
     }
 
@@ -26,7 +29,10 @@ final class Queue
             $redis->setOption(\Redis::OPT_READ_TIMEOUT, -1);
             return $redis->blPop(self::keys(), 0);
         } catch (RedisException $e) {
-            //todo handle err
+            Logger::getLogger(Logger::CONSUMER, Logger::CONSUMER)->error($e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
             return null;
         }
     }

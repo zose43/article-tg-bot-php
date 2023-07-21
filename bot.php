@@ -7,6 +7,7 @@ use Dotenv\Dotenv;
 use Bot\Processor;
 use Bot\EventManager;
 use Bot\Client\Client;
+use Bot\Components\Logger;
 
 require 'vendor/autoload.php';
 
@@ -16,8 +17,8 @@ $dotenv->safeLoad();
 $cmd = array_slice($argv, 1, 1);
 $args = array_slice($argv, 2);
 if (empty($cmd)) {
-    echo 'Empty argument';
-    exit(1);
+    Logger::getLogger()->warning('Empty command argument');
+    exit(0);
 }
 
 $processor = new Processor();

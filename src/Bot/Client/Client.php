@@ -6,11 +6,13 @@ namespace Bot\Client;
 
 use Exception;
 use Bot\Enums\Messages;
+use Bot\Components\Logger;
 use GuzzleHttp\Psr7\Request;
 use Bot\Models\Dto\Response;
 use Bot\Exceptions\BotInitException;
 use GuzzleHttp\Client as GuzzleClient;
 use Psr\Http\Message\ResponseInterface;
+use GuzzleHttp\Exception\BadResponseException;
 
 final class Client implements HTTPClient
 {
@@ -47,14 +49,15 @@ final class Client implements HTTPClient
                     'text' => $message->message(),
                 ]
             ]);
-            if ($response->getStatusCode() === 200) {
-                $this->registerResponse($response, $chatID);
-            } else {
-                // todo handle resp status
+            if ($response->getStatusCode() !== 200) {
+                throw new BadResponseException('status code != 200', $request, $response);
             }
+            $this->registerResponse($response, $chatID);
         } catch (Exception $e) {
-            $a = 1;
-            //todo handle err
+            Logger::getLogger(Logger::CONSUMER, Logger::CONSUMER)->error($e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
         }
     }
 
@@ -83,8 +86,14 @@ final class Client implements HTTPClient
                 $chatID,
                 $data['result']['chat']['first_name'],
                 $data['result']['chat']['username']);
+            Logger::getLogger(Logger::CONSUMER, Logger::CONSUMER)->info('success', [
+                'response' => $responseModel
+            ]);
         } catch (Exception $e) {
-            // todo handle err
+            Logger::getLogger(Logger::CONSUMER, Logger::CONSUMER)->error($e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
         }
     }
 }
