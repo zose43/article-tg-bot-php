@@ -12,3 +12,5 @@ $dotenv->safeLoad();
 
 $processor = new Processor();
 $processor->handleRequest();
+
+exit(0);

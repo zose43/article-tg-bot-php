@@ -6,6 +6,7 @@ namespace Bot;
 
 use Exception;
 use Bot\Client\HTTPClient;
+use Bot\Components\Logger;
 use Bot\Models\Dto\Payload;
 
 final readonly class EventManager
@@ -20,11 +21,14 @@ final readonly class EventManager
             match ($payload->message->text) {
                 Command::START => $this->cmd->start($payload, $this->client),
                 Command::HELP => $this->cmd->help($payload, $this->client),
-                default => $this->cmd->undefined()
+                default => $this->cmd->undefined($payload->message->text)
             };
-            // todo log request
         } catch (Exception $e) {
-            // todo handle err
+            Logger::getLogger(Logger::CONSUMER, Logger::CONSUMER)->error($e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'msg' => $msg,
+            ]);
         }
     }
 }

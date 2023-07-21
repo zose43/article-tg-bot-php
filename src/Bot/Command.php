@@ -7,6 +7,7 @@ namespace Bot;
 use Bot\Client\Client;
 use Bot\Enums\Messages;
 use Bot\Client\HTTPClient;
+use Bot\Components\Logger;
 use Bot\Models\Dto\Payload;
 
 final class Command
@@ -30,8 +31,10 @@ final class Command
             Messages::MsgHelp);
     }
 
-    public function undefined(): void
+    public function undefined(string $text): void
     {
-        echo 'undefined';
+        Logger::getLogger(Logger::CONSUMER, Logger::CONSUMER)->info("can't recognize command", [
+            'cmd' => $text
+        ]);
     }
 }
