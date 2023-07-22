@@ -8,6 +8,7 @@ use Bot\Processor;
 use Bot\EventManager;
 use Bot\Client\Client;
 use Bot\Components\Logger;
+use Bot\Storage\Database\DbStorage;
 
 require 'vendor/autoload.php';
 
@@ -24,7 +25,8 @@ if (empty($cmd)) {
 $processor = new Processor();
 $eventManager = new EventManager(
     new Command(),
-    new Client(getenv('TG_TOKEN'), getenv('TG_API')));
+    new Client(getenv('TG_TOKEN'), getenv('TG_API')),
+    new DbStorage());
 $processor->run($cmd[0], $eventManager, $args);
 
 exit(0);

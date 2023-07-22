@@ -19,4 +19,24 @@ final readonly class Payload
             $message['chat']['id']
         );
     }
+
+    public function toArray(array $attributes = []): array
+    {
+        if (empty($attributes)) {
+            return [
+                'update_id' => $this->update_id,
+                'message_id' => $this->message->messageID,
+                'first_name' => $this->message->firstname,
+                'username' => $this->message->username,
+                'language_code' => $this->message->languageCode,
+                'url' => $this->message->url,
+                'chat_id' => $this->message->chatID,
+            ];
+        }
+
+        $values =  array_map(fn(string $v) => empty($this->toArray()[$v])
+            ? null
+            : $this->toArray()[$v], $attributes);
+        return array_combine($attributes, $values);
+    }
 }
