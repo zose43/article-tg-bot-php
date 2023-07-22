@@ -23,12 +23,12 @@ final readonly class EventManager
             $data = json_decode($msg, true, 512, JSON_THROW_ON_ERROR);
             $payload = new Payload(...$data);
             if ($this->isAdding($payload->message->url)) {
-                $this->cmd->savePage($this->storage, $payload);
+                $this->cmd->savePage($this->storage, $payload, $this->client);
             } else {
                 match ($payload->message->url) {
                     Command::START => $this->cmd->start($payload, $this->client),
                     Command::HELP => $this->cmd->help($payload, $this->client),
-                    default => $this->cmd->undefined($payload->message->url)
+                    default => $this->cmd->undefined($payload, $this->client)
                 };
             }
         } catch (Exception $e) {

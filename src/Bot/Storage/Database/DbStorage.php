@@ -41,17 +41,13 @@ class DbStorage implements Storage
 
     public function save(Payload $payload): void
     {
-        if ($this->isExist($payload)) {
-            // todo handle repeat
-        } else {
-            $this->connection->insert($this->getTable(),
-                $payload->toArray([
-                    'chat_id',
-                    'username',
-                    'first_name',
-                    'url'
-                ]));
-        }
+        $this->connection->insert($this->getTable(),
+            $payload->toArray([
+                'chat_id',
+                'username',
+                'first_name',
+                'url'
+            ]));
     }
 
     public function remove(Payload $payload): void

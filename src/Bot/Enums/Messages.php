@@ -24,7 +24,7 @@ In order to save page, just send me a link to it.
 
 In order to get a random page, just send me a command /rnd
 Caution! After read your page will be removed',
-            self::MsgStart => 'Hi there! Type /help to see list of commands'
+            self::MsgStart => 'Hi there 🖐🏻! Type /help to see list of commands'
         };
     }
 }
