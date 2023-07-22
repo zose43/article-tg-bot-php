@@ -6,8 +6,8 @@ namespace Bot\Components;
 
 use Monolog\Level;
 use Monolog\Logger as MonologLogger;
-use Monolog\Handler\StreamHandler;
 use Monolog\Formatter\LineFormatter;
+use Monolog\Handler\RotatingFileHandler;
 
 final class Logger
 {
@@ -27,7 +27,10 @@ final class Logger
     private static function newLogger(string $name, string $filename): MonologLogger
     {
         $logger = new MonologLogger($name);
-        $streamHandler = new StreamHandler("xxx/logs/$filename.log", Level::Info);
+        $streamHandler = new RotatingFileHandler(
+            "xxx/logs/$filename.log",
+            level: Level::Info,
+            dateFormat: RotatingFileHandler::FILE_PER_MONTH);
         $formatter = new LineFormatter(dateFormat: 'Y-m-d H:m:s', ignoreEmptyContextAndExtra: true);
         $streamHandler->setFormatter($formatter);
         $logger->pushHandler($streamHandler);

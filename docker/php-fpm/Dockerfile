@@ -23,4 +23,15 @@ RUN apk --no-cache add pcre-dev $PHPIZE_DEPS \
       && apk del pcre-dev $PHPIZE_DEPS \
       && rm -rf /tmp/pear
 
+# install postgres db
+RUN apk --no-cache update \
+    && apk add --no-cache postgresql-dev libpq \
+    && docker-php-ext-install pdo_pgsql pgsql \
+    && apk del postgresql-dev
+
+# remove garbage
+RUN rm -rf /tmp/* /var/tmp/* \
+      && rm -rf /var/cache/apk/ \
+      && rm -rf /usr/share/doc/*
+
 USER app

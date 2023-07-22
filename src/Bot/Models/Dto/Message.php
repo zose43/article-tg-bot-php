@@ -10,6 +10,6 @@ final readonly class Message
                                 public string $firstname,
                                 public string $username,
                                 public string $languageCode,
-                                public string $text,
+                                public string $url,
                                 public int    $chatID) {}
 }

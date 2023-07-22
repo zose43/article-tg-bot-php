@@ -9,6 +9,7 @@
     "require": {
         "php": "^8.2",
         "ext-redis": "*",
+        "doctrine/dbal": "^3.6",
         "guzzlehttp/guzzle": "^7.0",
         "monolog/monolog": "^3.4",
         "symfony/process": "^6.3",
