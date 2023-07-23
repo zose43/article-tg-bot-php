@@ -34,24 +34,47 @@ class DbStorage implements Storage
         }
     }
 
-    public function pickRandom(string $username, Payload $payload): ?Stuff
+    public function pickRandom(Payload $payload): ?Stuff
     {
-        return null;
+        try {
+            $this->connection->beginTransaction();
+            $result = $this->connection->executeQuery('
+            select *
+            from stuff
+            tablesample system_rows(1)
+            where is_read = false
+        ')->fetchAssociative();
+
+            if (empty($result)) {
+                $this->connection->commit();
+                return null;
+            }
+            $stuff = new Stuff($result);
+            $this->update(['is_read' => true], $stuff->toArray([
+                'chat_id',
+                'username',
+                'url'
+            ]));
+            $this->connection->commit();
+            return $stuff;
+        } catch (\Exception $e) {
+            $this->connection->rollBack();
+            Logger::getLogger()->critical('transaction failed', [
+                'msg' => $e->getMessage(),
+            ]);
+            return null;
+        }
     }
 
     public function save(Payload $payload): void
     {
-        if ($this->isExist($payload)) {
-            // todo handle repeat
-        } else {
-            $this->connection->insert($this->getTable(),
-                $payload->toArray([
-                    'chat_id',
-                    'username',
-                    'first_name',
-                    'url'
-                ]));
-        }
+        $this->connection->insert($this->getTable(),
+            $payload->toArray([
+                'chat_id',
+                'username',
+                'first_name',
+                'url'
+            ]));
     }
 
     public function remove(Payload $payload): void
@@ -68,10 +91,19 @@ class DbStorage implements Storage
             ->andWhere('url = :url')
             ->andWhere('username = :username')
             ->setParameters([
-                'chat_id' => $payload->message->chatID,
-                'username' => $payload->message->username,
-                'url' => $payload->message->url,
+                'chat_id' => $payload->getMessage()->chatID,
+                'username' => $payload->getMessage()->username,
+                'url' => $payload->getMessage()->url,
             ])->fetchOne();
+    }
+
+    public function update(array $values, array $criteria): void
+    {
+        $this->connection->update(
+            $this->getTable(),
+            $values,
+            $criteria
+        );
     }
 
     public function getTable(): string
