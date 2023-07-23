@@ -4,11 +4,13 @@ declare(strict_types = 1);
 
 namespace Bot\Models\Dto;
 
-final readonly class Payload
-{
-    public Message $message;
+use Bot\Models\BaseModel;
 
-    public function __construct(public int $update_id, array $message)
+class Payload extends BaseModel
+{
+    protected Message $message;
+
+    public function __construct(private int $update_id, array $message)
     {
         $this->message = new Message(
             $message['message_id'],
@@ -20,23 +22,38 @@ final readonly class Payload
         );
     }
 
-    public function toArray(array $attributes = []): array
+    public function getMessage(): Message
     {
-        if (empty($attributes)) {
-            return [
-                'update_id' => $this->update_id,
-                'message_id' => $this->message->messageID,
-                'first_name' => $this->message->firstname,
-                'username' => $this->message->username,
-                'language_code' => $this->message->languageCode,
-                'url' => $this->message->url,
-                'chat_id' => $this->message->chatID,
-            ];
-        }
+        return $this->message;
+    }
 
-        $values =  array_map(fn(string $v) => empty($this->toArray()[$v])
-            ? null
-            : $this->toArray()[$v], $attributes);
-        return array_combine($attributes, $values);
+    public function setMessage(Message $message): Payload
+    {
+        $this->message = $message;
+        return $this;
+    }
+
+    public function getUpdateId(): int
+    {
+        return $this->update_id;
+    }
+
+    public function setUpdateId(int $update_id): Payload
+    {
+        $this->update_id = $update_id;
+        return $this;
+    }
+
+    protected function getAttributes(): array
+    {
+        return [
+            'update_id' => $this->getUpdateId(),
+            'message_id' => $this->getMessage()->messageID,
+            'first_name' => $this->getMessage()->firstname,
+            'username' => $this->getMessage()->username,
+            'language_code' => $this->getMessage()->languageCode,
+            'url' => $this->getMessage()->url,
+            'chat_id' => $this->getMessage()->chatID,
+        ];
     }
 }

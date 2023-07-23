@@ -39,14 +39,14 @@ class Client implements HTTPClient
         ]);
     }
 
-    public function send(string $method, int $chatID, Messages $message): void
+    public function send(string $method, int $chatID, Messages|string $message): void
     {
         $request = new Request('GET', $this->newBasePath($method));
         try {
             $response = $this->client->send($request, [
                 'query' => [
                     'chat_id' => $chatID,
-                    'text' => $message->message(),
+                    'text' => $this->getText($message),
                 ]
             ]);
             if ($response->getStatusCode() !== 200) {
@@ -95,5 +95,13 @@ class Client implements HTTPClient
                 'line' => $e->getLine(),
             ]);
         }
+    }
+
+    private function getText(string|Messages $message): string
+    {
+        if (is_string($message)) {
+            return $message;
+        }
+        return $message->message();
     }
 }
